@@ -9,7 +9,7 @@ import (
 
 const (
 	defaultServer = "8.8.4.4:53"
-	udpBlockSize  = 4096
+	udpBlockSize  = 1024 * 10
 )
 
 type dnsResolverClient interface {
