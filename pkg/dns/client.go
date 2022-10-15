@@ -22,6 +22,7 @@ type Question struct {
 }
 
 type Data struct {
+	ID    string
 	Type  string
 	Key   string
 	Value interface{}
@@ -56,7 +57,7 @@ func messageToResponses(message *dns.Msg, question Question) (data []Data) {
 	for _, answer := range message.Answer {
 		header := answer.Header()
 
-		if !(question.Type == header.String() || dns.StringToType[question.Type] == dns.TypeANY) {
+		if !(dns.StringToType[question.Type] == header.Rrtype || dns.StringToType[question.Type] == dns.TypeANY) {
 			continue
 		}
 

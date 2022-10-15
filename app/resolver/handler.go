@@ -42,7 +42,7 @@ func Handler(service resolverService) http.HandlerFunc {
 
 		if err != nil {
 			writeResponse(w, Response{
-				ErrorMessage: stringToRef("could not resolve the dns"),
+				ErrorMessage: stringToRef("could not resolve the dns, error: " + err.Error()),
 				StatusCode:   http.StatusInternalServerError,
 				Data:         nil,
 			})
@@ -57,6 +57,8 @@ func Handler(service resolverService) http.HandlerFunc {
 }
 
 func writeResponse(w http.ResponseWriter, resp Response) {
+	w.Header().Set("Content-Type", "application/json")
+
 	bytes, err := json.Marshal(resp)
 	if err != nil {
 		w.Write([]byte(`{"error_message": "unexpected error happened", "status_code": 500, "data": []}`))

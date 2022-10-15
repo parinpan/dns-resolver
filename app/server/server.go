@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"github.com/miekg/dns"
-	resolver "github.com/parinpan/dns-resolver/app/resolver"
+	"github.com/parinpan/dns-resolver/app/resolver"
 	dnsPkg "github.com/parinpan/dns-resolver/pkg/dns"
 	"log"
 	"net/http"
@@ -14,12 +14,7 @@ func Start(ctx context.Context, address string) error {
 
 	http.HandleFunc("/resolve", resolver.Handler(&resolver.Resolver{
 		Client: &dnsPkg.ResolverClient{
-			Client: &dns.Client{
-				Timeout:      250,
-				DialTimeout:  250,
-				ReadTimeout:  250,
-				WriteTimeout: 250,
-			},
+			Client: &dns.Client{},
 		},
 	}))
 

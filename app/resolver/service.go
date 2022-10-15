@@ -13,9 +13,10 @@ type dnsResolverClient interface {
 type Data struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
+	RType string `json:"-"`
 }
 
-type DataGroup map[string][]Data
+type DataGroup map[string][][]Data
 
 type Resolver struct {
 	Client dnsResolverClient
@@ -32,16 +33,21 @@ func (r *Resolver) Resolve(ctx context.Context, question dns.Question) (DataGrou
 
 func dataToDataGroup(data []dns.Data) DataGroup {
 	dg := make(DataGroup)
+	group := make(map[string][]Data)
 
 	for _, item := range data {
-		if _, ok := dg[item.Key]; !ok {
-			dg[item.Key] = []Data{}
-		}
-
-		dg[item.Key] = append(dg[item.Type], Data{
+		group[item.ID] = append(group[item.ID], Data{
 			Key:   item.Key,
 			Value: fmt.Sprint(item.Value),
+			RType: item.Type,
 		})
+	}
+
+	for _, items := range group {
+		if len(items) > 0 {
+			rtype := items[0].RType
+			dg[rtype] = append(dg[rtype], items)
+		}
 	}
 
 	return dg
