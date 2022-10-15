@@ -18,11 +18,11 @@ type Data struct {
 type DataGroup map[string][]Data
 
 type Resolver struct {
-	client dnsResolverClient
+	Client dnsResolverClient
 }
 
 func (r *Resolver) Resolve(ctx context.Context, question dns.Question) (DataGroup, error) {
-	data, err := r.client.ExchangeContext(ctx, question)
+	data, err := r.Client.ExchangeContext(ctx, question)
 	if err != nil {
 		return nil, err
 	}
