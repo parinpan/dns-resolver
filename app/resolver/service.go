@@ -11,8 +11,8 @@ type dnsResolverClient interface {
 }
 
 type Data struct {
-	Key   string
-	Value string
+	Key   string `json:"key"`
+	Value string `json:"value"`
 }
 
 type DataGroup map[string][]Data
