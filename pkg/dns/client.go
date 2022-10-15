@@ -8,7 +8,8 @@ import (
 )
 
 const (
-	defaultServer = "1.1.1.1:53"
+	defaultServer = "8.8.4.4:53"
+	udpBlockSize  = 4096
 )
 
 type dnsResolverClient interface {
@@ -30,27 +31,40 @@ type ResolverClient struct {
 	Client dnsResolverClient
 }
 
-func (r *ResolverClient) ExchangeContext(ctx context.Context, questions ...Question) ([]Data, error) {
+func (r *ResolverClient) ExchangeContext(ctx context.Context, question Question) ([]Data, error) {
 	query := dns.Msg{
 		MsgHdr: dns.MsgHdr{
-			Id:               dns.Id(),
-			RecursionDesired: true,
+			Id:                 dns.Id(),
+			RecursionAvailable: true,
+			RecursionDesired:   true,
+			Opcode:             dns.OpcodeQuery,
 		},
-		Question: questionsToClientQuestions(questions...),
+		Question: questionsToClientQuestions(question),
 	}
+
+	query.SetEdns0(udpBlockSize, true)
 
 	message, _, err := r.Client.ExchangeContext(ctx, &query, defaultServer)
 	if err != nil {
 		return nil, fmt.Errorf("could not get a response from client, with an error: %w", err)
 	}
 
-	return messageToResponses(message), nil
+	return messageToResponses(message, question), nil
 }
 
-func messageToResponses(message *dns.Msg) (data []Data) {
+func messageToResponses(message *dns.Msg, question Question) (data []Data) {
 	for _, answer := range message.Answer {
 		header := answer.Header()
-		mappers[header.Rrtype](answer, &data)
+
+		if !(question.Type == header.String() || dns.StringToType[question.Type] == dns.TypeANY) {
+			continue
+		}
+
+		if mapper, ok := mappers[header.Rrtype]; ok {
+			mapper(answer, &data)
+		} else {
+			mappers[dns.TypeANY](answer, &data)
+		}
 	}
 	return data
 }

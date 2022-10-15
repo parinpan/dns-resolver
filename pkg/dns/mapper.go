@@ -8,6 +8,7 @@ import (
 type converter func(answer dns.RR, data *[]Data)
 
 var mappers = map[uint16]converter{
+	dns.TypeANY:    typeANY,
 	dns.TypeA:      typeA,
 	dns.TypeAAAA:   typeAAAA,
 	dns.TypeCAA:    typeCAA,
@@ -25,21 +26,21 @@ var mappers = map[uint16]converter{
 
 func typeA(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.A)
-	appendData(data, Data{Type: "A", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "A", Key: "DATA", Value: ans.A.String()})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "DATA", Value: ans.A.String()})
 }
 
 func typeAAAA(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.AAAA)
-	appendData(data, Data{Type: "AAAA", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "AAAA", Key: "DATA", Value: ans.AAAA.String()})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "DATA", Value: ans.AAAA.String()})
 }
 
 func typeCAA(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.CAA)
 	value := fmt.Sprint(ans.Flag, " ", ans.Tag, fmt.Sprintf(" \"%s\"", ans.Value))
-	appendData(data, Data{Type: "CAA", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "CAA", Key: "DATA", Value: value})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "DATA", Value: value})
 }
 
 func typeCNAME(answer dns.RR, data *[]Data) {
@@ -48,34 +49,34 @@ func typeCNAME(answer dns.RR, data *[]Data) {
 
 func typeDNSKEY(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.DNSKEY)
-	appendData(data, Data{Type: "DNSKEY", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "DNSKEY", Key: "FLAGS", Value: ans.Flags})
-	appendData(data, Data{Type: "DNSKEY", Key: "ALGORITHM", Value: ans.Algorithm})
-	appendData(data, Data{Type: "DNSKEY", Key: "PROTOCOL", Value: ans.Protocol})
-	appendData(data, Data{Type: "DNSKEY", Key: "KEY", Value: ans.PublicKey})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "FLAGS", Value: ans.Flags})
+	appendData(data, Data{Type: answerRType(answer), Key: "ALGORITHM", Value: ans.Algorithm})
+	appendData(data, Data{Type: answerRType(answer), Key: "PROTOCOL", Value: ans.Protocol})
+	appendData(data, Data{Type: answerRType(answer), Key: "KEY", Value: ans.PublicKey})
 }
 
 func typeDS(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.DS)
-	appendData(data, Data{Type: "DS", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "DS", Key: "KEYTAG", Value: ans.KeyTag})
-	appendData(data, Data{Type: "DS", Key: "ALGORITHM", Value: ans.Algorithm})
-	appendData(data, Data{Type: "DS", Key: "DIGEST TYPE", Value: ans.DigestType})
-	appendData(data, Data{Type: "DS", Key: "DIGEST", Value: ans.Digest})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "KEYTAG", Value: ans.KeyTag})
+	appendData(data, Data{Type: answerRType(answer), Key: "ALGORITHM", Value: ans.Algorithm})
+	appendData(data, Data{Type: answerRType(answer), Key: "DIGEST TYPE", Value: ans.DigestType})
+	appendData(data, Data{Type: answerRType(answer), Key: "DIGEST", Value: ans.Digest})
 }
 
 func typeMX(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.MX)
-	appendData(data, Data{Type: "DS", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "DS", Key: "EXCHANGE", Value: ans.Mx})
-	appendData(data, Data{Type: "DS", Key: "PREFERENCE", Value: ans.Preference})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "EXCHANGE", Value: ans.Mx})
+	appendData(data, Data{Type: answerRType(answer), Key: "PREFERENCE", Value: ans.Preference})
 
 }
 
 func typeNS(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.NS)
-	appendData(data, Data{Type: "DS", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "DS", Key: "TARGET", Value: ans.Ns})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "TARGET", Value: ans.Ns})
 }
 
 func typePTR(answer dns.RR, data *[]Data) {
@@ -84,13 +85,13 @@ func typePTR(answer dns.RR, data *[]Data) {
 
 func typeSOA(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.SOA)
-	appendData(data, Data{Type: "DS", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "DS", Key: "MNAME", Value: ans.Ns})
-	appendData(data, Data{Type: "DS", Key: "RNAME", Value: ans.Mbox})
-	appendData(data, Data{Type: "DS", Key: "SERIAL", Value: ans.Serial})
-	appendData(data, Data{Type: "DS", Key: "REFRESH", Value: ans.Refresh})
-	appendData(data, Data{Type: "DS", Key: "RETRY", Value: ans.Retry})
-	appendData(data, Data{Type: "DS", Key: "EXPIRE", Value: ans.Expire})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "MNAME", Value: ans.Ns})
+	appendData(data, Data{Type: answerRType(answer), Key: "RNAME", Value: ans.Mbox})
+	appendData(data, Data{Type: answerRType(answer), Key: "SERIAL", Value: ans.Serial})
+	appendData(data, Data{Type: answerRType(answer), Key: "REFRESH", Value: ans.Refresh})
+	appendData(data, Data{Type: answerRType(answer), Key: "RETRY", Value: ans.Retry})
+	appendData(data, Data{Type: answerRType(answer), Key: "EXPIRE", Value: ans.Expire})
 }
 
 func typeSRV(answer dns.RR, data *[]Data) {
@@ -103,8 +104,17 @@ func typeTLSA(answer dns.RR, data *[]Data) {
 
 func typeTXT(answer dns.RR, data *[]Data) {
 	ans := answer.(*dns.TXT)
-	appendData(data, Data{Type: "DS", Key: "TTL", Value: ans.Hdr.Ttl})
-	appendData(data, Data{Type: "DS", Key: "VALUE", Value: ans.Txt})
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "VALUE", Value: ans.Txt})
+}
+
+func typeANY(answer dns.RR, data *[]Data) {
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: answer.Header().Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "DATA", Value: answer.Header().String()})
+}
+
+func answerRType(answer dns.RR) string {
+	return dns.TypeToString[answer.Header().Rrtype]
 }
 
 func appendData(data *[]Data, new Data) {
