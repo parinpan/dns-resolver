@@ -22,6 +22,8 @@ var mappers = map[uint16]converter{
 	dns.TypeSRV:    typeSRV,
 	dns.TypeTLSA:   typeTLSA,
 	dns.TypeTXT:    typeTXT,
+	dns.TypeTSIG:   typeTSIG,
+	dns.TypeRRSIG:  typeRSIG,
 }
 
 func typeA(answer dns.RR, data *[]Data) {
@@ -44,7 +46,9 @@ func typeCAA(answer dns.RR, data *[]Data) {
 }
 
 func typeCNAME(answer dns.RR, data *[]Data) {
-
+	ans := answer.(*dns.CNAME)
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "TARGET", Value: ans.Target})
 }
 
 func typeDNSKEY(answer dns.RR, data *[]Data) {
@@ -80,7 +84,9 @@ func typeNS(answer dns.RR, data *[]Data) {
 }
 
 func typePTR(answer dns.RR, data *[]Data) {
-
+	ans := answer.(*dns.PTR)
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "PTR", Value: ans.Ptr})
 }
 
 func typeSOA(answer dns.RR, data *[]Data) {
@@ -95,11 +101,21 @@ func typeSOA(answer dns.RR, data *[]Data) {
 }
 
 func typeSRV(answer dns.RR, data *[]Data) {
-
+	ans := answer.(*dns.SRV)
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "TARGET", Value: ans.Target})
+	appendData(data, Data{Type: answerRType(answer), Key: "PORT", Value: ans.Port})
+	appendData(data, Data{Type: answerRType(answer), Key: "PRIORITY", Value: ans.Priority})
+	appendData(data, Data{Type: answerRType(answer), Key: "WEIGHT", Value: ans.Weight})
 }
 
 func typeTLSA(answer dns.RR, data *[]Data) {
-
+	ans := answer.(*dns.TLSA)
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "MATCHING TYPE", Value: ans.MatchingType})
+	appendData(data, Data{Type: answerRType(answer), Key: "USAGE", Value: ans.Usage})
+	appendData(data, Data{Type: answerRType(answer), Key: "SELECTOR", Value: ans.Selector})
+	appendData(data, Data{Type: answerRType(answer), Key: "CERTIFICATE", Value: ans.Certificate})
 }
 
 func typeTXT(answer dns.RR, data *[]Data) {
@@ -111,6 +127,27 @@ func typeTXT(answer dns.RR, data *[]Data) {
 func typeANY(answer dns.RR, data *[]Data) {
 	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: answer.Header().Ttl})
 	appendData(data, Data{Type: answerRType(answer), Key: "DATA", Value: answer.Header().String()})
+}
+
+func typeTSIG(answer dns.RR, data *[]Data) {
+	ans := answer.(*dns.TSIG)
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "ALGORITHM", Value: ans.Algorithm})
+	appendData(data, Data{Type: answerRType(answer), Key: "MAC", Value: ans.MAC})
+	appendData(data, Data{Type: answerRType(answer), Key: "DATA", Value: ans.OtherData})
+}
+
+func typeRSIG(answer dns.RR, data *[]Data) {
+	ans := answer.(*dns.RRSIG)
+	appendData(data, Data{Type: answerRType(answer), Key: "TTL", Value: ans.Hdr.Ttl})
+	appendData(data, Data{Type: answerRType(answer), Key: "MAC", Value: dns.Type(ans.TypeCovered).String()})
+	appendData(data, Data{Type: answerRType(answer), Key: "ALGORITHM", Value: ans.Algorithm})
+	appendData(data, Data{Type: answerRType(answer), Key: "LABELS", Value: ans.Labels})
+	appendData(data, Data{Type: answerRType(answer), Key: "EXPIRATION", Value: dns.TimeToString(ans.Expiration)})
+	appendData(data, Data{Type: answerRType(answer), Key: "INCEPTION", Value: dns.TimeToString(ans.Inception)})
+	appendData(data, Data{Type: answerRType(answer), Key: "KEY TAG", Value: dns.TimeToString(ans.Inception)})
+	appendData(data, Data{Type: answerRType(answer), Key: "SIGNER", Value: ans.SignerName})
+	appendData(data, Data{Type: answerRType(answer), Key: "SIGNATURE", Value: ans.Signature})
 }
 
 func answerRType(answer dns.RR) string {
