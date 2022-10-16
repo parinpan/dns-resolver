@@ -18,7 +18,7 @@ func Start(ctx context.Context, address string) error {
 		},
 	}
 
-	staticDir := http.Dir("web/build")
+	staticDir := http.Dir("/web/build")
 	http.Handle("/", http.FileServer(staticDir))
 
 	http.HandleFunc("/resolve", allowCorsMiddleware(resolver.Handler(r)))
