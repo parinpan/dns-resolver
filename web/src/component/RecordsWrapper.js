@@ -8,7 +8,9 @@ import Placeholder from "./Placeholder";
 export default class RecordsWrapper extends React.Component {
     constructor(props) {
         super(props)
-        this.fetcher = new RecordFetcher('http://localhost')
+
+        // resolver.fachr.in is mine :)
+        this.fetcher = new RecordFetcher('https://resolver.fachr.in')
 
         this.state = {
             results: {},
