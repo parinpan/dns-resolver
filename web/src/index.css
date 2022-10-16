@@ -1,0 +1,27 @@
+.container {
+    margin-top: 2%;
+}
+
+.sub-items {
+    margin-bottom: 40px;
+}
+
+.sub-items:last-child {
+    margin-bottom: 0px;
+}
+
+.sub-items div {
+    margin-bottom: 10px;
+}
+
+.sub-items div:last-child {
+    margin-bottom: 0px;
+}
+
+.records-plain-text {
+    margin: 20px!important;
+}
+
+.records-menu {
+    margin: 10px 3px!important;
+}

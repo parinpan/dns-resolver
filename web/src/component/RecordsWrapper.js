@@ -4,15 +4,19 @@ import RecordsReader from "./RecordsReader";
 
 export default class RecordsWrapper extends React.Component {
     constructor(props) {
-        super(props);
-        this.records = props.records
+        super(props)
+        this.state = {queryRecord: "ANY"}
+    }
+
+    changeRecord(record) {
+        this.setState({queryRecord: record})
     }
 
     render() {
         return (
             <div>
-                <RecordsMenu records={this.records}/>
-                <RecordsReader/>
+                <RecordsMenu changeRecord={this.changeRecord.bind(this)} records={this.props.records}/>
+                <RecordsReader queryHostname={this.props.hostname} queryRecord={this.state.queryRecord}/>
             </div>
         )
     }

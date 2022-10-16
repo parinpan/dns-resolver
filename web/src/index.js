@@ -1,6 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import App from './App'
+import './index.css'
 
 const root = ReactDOM.createRoot(
     document.getElementById('root')
@@ -8,7 +9,7 @@ const root = ReactDOM.createRoot(
 
 const records = [
     "ANY", "A", "AAAA", "CAA", "CNAME", "DNSKEY", "DS", "MX",
-    "NS", "PTR", "SOA", "SRV", "SOA", "SRV", "TLSA", "TSIG", "TXT"
+    "NS", "PTR", "SOA", "SRV", "TLSA", "TSIG", "TXT"
 ]
 
 root.render(
