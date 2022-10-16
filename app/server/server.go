@@ -12,11 +12,13 @@ import (
 func Start(ctx context.Context, address string) error {
 	errChan := make(chan error)
 
-	http.HandleFunc("/resolve", resolver.Handler(&resolver.Resolver{
+	handler := resolver.Handler(&resolver.Resolver{
 		Client: &dnsPkg.ResolverClient{
 			Client: &dns.Client{},
 		},
-	}))
+	})
+
+	http.HandleFunc("/resolve", allowCorsMiddleware(handler))
 
 	server := &http.Server{
 		Addr:    address,
@@ -34,4 +36,20 @@ func Start(ctx context.Context, address string) error {
 	}()
 
 	return <-errChan
+}
+
+func allowCorsMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		isPreflight := r.Method == http.MethodOptions &&
+			r.Header.Get("Access-Control-Request-Method") != ""
+
+		if isPreflight {
+			w.Header().Set("Access-Control-Allow-Headers", "*")
+			w.WriteHeader(http.StatusNoContent)
+		} else {
+			next(w, r)
+		}
+	}
 }
