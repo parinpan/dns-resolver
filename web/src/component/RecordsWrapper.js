@@ -14,6 +14,8 @@ export default class RecordsWrapper extends React.Component {
             results: {},
             nsResults: {},
             queryRecord: "ANY",
+            resultsLoading: false,
+            nsResultsLoading: false,
         }
     }
 
@@ -30,19 +32,26 @@ export default class RecordsWrapper extends React.Component {
             return
         }
 
+        this.setState({resultsLoading: true})
+        this.setState({nsResultsLoading: true})
+
         this.fetcher.fetch(hostname, record)
             .then(response => {
+                this.setState({resultsLoading: false})
                 self.setState({results: response.data})
             })
             .catch(e => {
+                this.setState({resultsLoading: false})
                 console.log(e)
             })
 
         this.fetcher.fetchNS(hostname, record)
             .then(response => {
+                this.setState({nsResultsLoading: false})
                 self.setState({nsResults: response.data})
             })
             .catch(e => {
+                this.setState({nsResultsLoading: false})
                 console.log(e)
             })
     }
@@ -52,8 +61,8 @@ export default class RecordsWrapper extends React.Component {
         this.fetchData(this.props.hostname, record)
     }
 
-    renderResults(hostname, results) {
-        const notEmpty = Object.keys(results || {}).length > 0
+    renderResults(hostname, results, isLoading) {
+        const notEmpty = Object.keys(results || {}).length > 0 && !isLoading
 
         return (
             <Accordion className={"accordion"} key={hostname} expanded={true} elevation={5}>
@@ -63,7 +72,7 @@ export default class RecordsWrapper extends React.Component {
                 <AccordionDetails>
                     {this.renderSwitch(notEmpty,
                         (<RecordsReader records={results}/>),
-                        (<Placeholder text={"Records not found!"}/>))}
+                        (<Placeholder text={isLoading ? "Loading..." : "Records not found!"}/>))}
                 </AccordionDetails>
             </Accordion>
         )
@@ -72,11 +81,11 @@ export default class RecordsWrapper extends React.Component {
     mergeRenderResults(hostname, results, nsResults) {
         const merged = []
         const nameservers = Object.keys(nsResults)
-        merged.push(this.renderResults(hostname, results))
+        merged.push(this.renderResults(hostname, results, this.state.resultsLoading))
 
         nameservers.forEach(ns => {
             const title = `${ns} (NS of ${hostname})`
-            merged.push(this.renderResults(title, nsResults[ns]))
+            merged.push(this.renderResults(title, nsResults[ns], this.state.resultsLoading))
         })
 
         return merged
