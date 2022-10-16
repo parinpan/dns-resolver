@@ -12,13 +12,14 @@ import (
 func Start(ctx context.Context, address string) error {
 	errChan := make(chan error)
 
-	handler := resolver.Handler(&resolver.Resolver{
+	r := &resolver.Resolver{
 		Client: &dnsPkg.ResolverClient{
 			Client: &dns.Client{},
 		},
-	})
+	}
 
-	http.HandleFunc("/resolve", allowCorsMiddleware(handler))
+	http.HandleFunc("/resolve", allowCorsMiddleware(resolver.Handler(r)))
+	http.HandleFunc("/resolve/ns", allowCorsMiddleware(resolver.HandlerNS(r)))
 
 	server := &http.Server{
 		Addr:    address,

@@ -8,6 +8,7 @@ import (
 )
 
 type resolverService interface {
+	ResolveNS(ctx context.Context, question dns.Question) (DataGroupWithNS, error)
 	Resolve(ctx context.Context, question dns.Question) (DataGroup, error)
 }
 
@@ -20,6 +21,46 @@ type Response struct {
 	ErrorMessage *string     `json:"error_message"`
 	StatusCode   int         `json:"status_code"`
 	Data         interface{} `json:"data"`
+}
+
+func HandlerNS(service resolverService) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		req := Request{}
+
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			writeResponse(w, Response{
+				ErrorMessage: stringToRef("could not parse the request"),
+				StatusCode:   http.StatusInternalServerError,
+			})
+			return
+		}
+
+		if req.HostName == "" || req.RecordType == "" {
+			writeResponse(w, Response{
+				ErrorMessage: stringToRef("both hostname and record type must be specified in the request"),
+				StatusCode:   http.StatusBadRequest,
+			})
+			return
+		}
+
+		data, err := service.ResolveNS(r.Context(), dns.Question{
+			HostName: req.HostName,
+			Type:     req.RecordType,
+		})
+
+		if err != nil {
+			writeResponse(w, Response{
+				ErrorMessage: stringToRef("could not resolve the dns, error: " + err.Error()),
+				StatusCode:   http.StatusInternalServerError,
+			})
+			return
+		}
+
+		writeResponse(w, Response{
+			StatusCode: http.StatusOK,
+			Data:       data,
+		})
+	}
 }
 
 func Handler(service resolverService) http.HandlerFunc {
