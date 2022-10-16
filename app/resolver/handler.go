@@ -30,7 +30,7 @@ func HandlerNS(service resolverService) http.HandlerFunc {
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			writeResponse(w, Response{
 				ErrorMessage: stringToRef("could not parse the request"),
-				StatusCode:   http.StatusInternalServerError,
+				StatusCode:   http.StatusBadRequest,
 			})
 			return
 		}
@@ -70,7 +70,7 @@ func Handler(service resolverService) http.HandlerFunc {
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			writeResponse(w, Response{
 				ErrorMessage: stringToRef("could not parse the request"),
-				StatusCode:   http.StatusInternalServerError,
+				StatusCode:   http.StatusBadRequest,
 			})
 			return
 		}
