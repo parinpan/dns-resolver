@@ -1,5 +1,5 @@
-import React from 'react'
-import RecordFetcher from "../api/RecordFetcher"
+import React from "react"
+import Placeholder from "./Placeholder"
 
 import {
     Table,
@@ -9,28 +9,8 @@ import {
     TableBody, Typography
 } from "@mui/material"
 
+
 export default class RecordsReader extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {loading: false, data: {}}
-        this.fetcher = new RecordFetcher('http://localhost')
-    }
-
-    componentDidUpdate(prevProps) {
-        const {queryHostname, queryRecord} = this.props
-        const self = this
-
-        if (prevProps.queryHostname !== queryHostname || prevProps.queryRecord !== queryRecord) {
-            this.fetcher.fetch(queryHostname, queryRecord)
-                .then(response => {
-                    self.setState({data: response.data})
-                })
-                .catch(e => {
-                    console.log(e)
-                })
-        }
-    }
-
     renderItems(items) {
         return items.map((item, i) => {
             return (
@@ -66,28 +46,16 @@ export default class RecordsReader extends React.Component {
     }
 
     render() {
-        const records = this.state.data || {}
+        const records = this.props.records || {}
         const recordTypes = Object.keys(records)
 
-        if (this.props.queryHostname === "" || this.props.queryRecord === "") {
-            return (
-                <Typography className={"records-plain-text"} variant="subtitle2">
-                    <strong>Please enter a hostname and select the record type</strong>
-                </Typography>
-            )
-        }
-
         if (recordTypes.length === 0) {
-            return (
-                <Typography className={"records-plain-text"} variant="subtitle2">
-                    <strong>Records not found!</strong>
-                </Typography>
-            )
+            return (<Placeholder text={"Records not found"}/>)
         }
 
         return (
             <TableContainer>
-                <Table>
+                <Table className={"records-table"}>
                     <TableBody>
                         {this.renderRecords(recordTypes, records)}
                     </TableBody>

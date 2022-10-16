@@ -7,7 +7,7 @@
 }
 
 .sub-items:last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .sub-items div {
@@ -15,7 +15,7 @@
 }
 
 .sub-items div:last-child {
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 .records-plain-text {
@@ -24,4 +24,12 @@
 
 .records-menu {
     margin: 10px 3px!important;
+}
+
+.records-table tbody tr:last-child td {
+    border: 0!important;
+}
+
+.accordion {
+    margin-top: 0!important;
 }
