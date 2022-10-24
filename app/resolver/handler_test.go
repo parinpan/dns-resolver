@@ -14,7 +14,7 @@ import (
 )
 
 func TestHandlerNS(t *testing.T) {
-	t.Run("returns 403 when request could not be parsed", func(t *testing.T) {
+	t.Run("returns 400 when request could not be parsed", func(t *testing.T) {
 		mockService := newResolverServiceMock(t)
 		mux := http.NewServeMux()
 		mux.HandleFunc("/resolve/ns", HandlerNS(mockService))
@@ -32,7 +32,7 @@ func TestHandlerNS(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})
 
-	t.Run("returns 403 when request is not complete", func(t *testing.T) {
+	t.Run("returns 400 when request is not complete", func(t *testing.T) {
 		mockService := newResolverServiceMock(t)
 		mux := http.NewServeMux()
 		mux.HandleFunc("/resolve/ns", HandlerNS(mockService))
@@ -133,7 +133,7 @@ func TestHandlerNS(t *testing.T) {
 }
 
 func TestHandler(t *testing.T) {
-	t.Run("returns 403 when request could not be parsed", func(t *testing.T) {
+	t.Run("returns 400 when request could not be parsed", func(t *testing.T) {
 		mockService := newResolverServiceMock(t)
 		mux := http.NewServeMux()
 		mux.HandleFunc("/resolve", Handler(mockService))
@@ -151,7 +151,7 @@ func TestHandler(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, resp.StatusCode)
 	})
 
-	t.Run("returns 403 when request is not complete", func(t *testing.T) {
+	t.Run("returns 400 when request is not complete", func(t *testing.T) {
 		mockService := newResolverServiceMock(t)
 		mux := http.NewServeMux()
 		mux.HandleFunc("/resolve", Handler(mockService))
